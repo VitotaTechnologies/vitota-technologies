@@ -1,0 +1,18 @@
+.env
+.env.local
+.env.*.local
+!.env.example
+
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+
+*.log
+*.tsbuildinfo
+
+# Local development uploads must not become repository content.
+public/uploads/*
+!public/uploads/.gitkeep

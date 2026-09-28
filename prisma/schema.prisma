@@ -1,0 +1,525 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  STAFF
+  CLIENT
+}
+
+enum AccountStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum OtpPurpose {
+  EMAIL_VERIFICATION
+  PHONE_VERIFICATION
+  PASSWORD_RESET
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  DISCUSSION
+  PROPOSAL
+  CONVERTED
+  CLOSED
+}
+
+enum ProjectStatus {
+  PLANNING
+  DESIGN
+  DEVELOPMENT
+  TESTING
+  DEPLOYMENT
+  COMPLETED
+  ON_HOLD
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  PARTIALLY_PAID
+  OVERDUE
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum NotificationType {
+  NEW_LEAD
+  URGENT_LEAD
+  NEW_CLIENT
+  NEW_MESSAGE
+  PROJECT_UPDATE
+  MILESTONE_COMPLETED
+  PAYMENT_RECEIVED
+  PAYMENT_PENDING
+  ACCOUNT_UPDATE
+  SYSTEM
+}
+
+enum MessageType {
+  TEXT
+  SYSTEM_MESSAGE
+  FILE
+  IMAGE
+}
+
+enum CallType {
+  AUDIO
+  VIDEO
+}
+
+enum CallStatus {
+  RINGING
+  ANSWERED
+  MISSED
+  DECLINED
+  ENDED
+}
+
+model User {
+  id               String        @id @default(cuid())
+  name             String
+  email            String
+  phone            String?
+  passwordHash     String
+  role             Role          @default(CLIENT)
+  status           AccountStatus @default(PENDING_VERIFICATION)
+  emailVerified    Boolean       @default(false)
+  phoneVerified    Boolean       @default(false)
+  lastLoginAt      DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  client           Client?
+  sessions         Session[]
+  otps             OtpVerification[]
+  termsAcceptances TermsAcceptance[]
+  auditLogs        AuditLog[]
+  sentMessages     Message[]     @relation("SentMessages")
+  notifications    Notification[]
+  recordedPayments Payment[]     @relation("RecordedBy")
+
+  @@index([email])
+  @@index([phone])
+  @@index([role])
+  @@index([status])
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String   @unique
+  ipAddress  String?
+  userAgent  String?
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model OtpVerification {
+  id          String     @id @default(cuid())
+  identifier  String
+  purpose     OtpPurpose
+  otpHash     String
+  expiresAt   DateTime
+  attempts    Int        @default(0)
+  maxAttempts Int        @default(5)
+  used        Boolean    @default(false)
+  usedAt      DateTime?
+  createdAt   DateTime   @default(now())
+  userId      String?
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([identifier, purpose])
+  @@index([expiresAt])
+}
+
+model Client {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  companyName   String?
+  notes         String?
+  isActive      Boolean  @default(true)
+
+  // Calling permission.
+  // New clients start with calling disabled.
+  // Admin controls this permission manually.
+  callEnabled   Boolean  @default(false)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projects      Project[]
+  conversations Conversation[]
+  callSessions  CallSession[]
+
+  @@index([userId])
+}
+
+model Lead {
+  id                  String     @id @default(cuid())
+  name                String
+  email               String
+  phone               String
+  service             String?
+  message             String
+  urgent              Boolean    @default(false)
+  status              LeadStatus @default(NEW)
+  notes               LeadNote[]
+  convertedToClientId String?
+  convertedAt         DateTime?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  @@index([status])
+  @@index([urgent])
+  @@index([createdAt])
+}
+
+model LeadNote {
+  id        String   @id @default(cuid())
+  leadId    String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+}
+
+model Project {
+  id             String        @id @default(cuid())
+  clientId       String
+  name           String
+  description    String?
+  status         ProjectStatus @default(PLANNING)
+  phase          String        @default("Planning")
+  progress       Int           @default(0)
+  totalCost      Decimal       @db.Decimal(12, 2) @default(0)
+  currency       String        @default("INR")
+  startDate      DateTime?
+  expectedEnd    DateTime?
+  archived       Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  client         Client             @relation(fields: [clientId], references: [id])
+  milestones     ProjectMilestone[]
+  updates        ProjectUpdate[]
+  payments       Payment[]
+  conversations  Conversation[]
+
+  @@index([clientId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ProjectMilestone {
+  id          String          @id @default(cuid())
+  projectId   String
+  name        String
+  description String?
+  order       Int             @default(0)
+  status      MilestoneStatus @default(PENDING)
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model ProjectUpdate {
+  id          String   @id @default(cuid())
+  projectId   String
+  title       String
+  description String
+  progressAt  Int?
+  createdAt   DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Conversation {
+  id            String   @id @default(cuid())
+  clientId      String
+  projectId     String?
+  lastMessageAt DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  client        Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project       Project?      @relation(fields: [projectId], references: [id])
+  messages      Message[]
+  callSessions  CallSession[]
+
+  @@index([clientId])
+  @@index([projectId])
+}
+
+model Message {
+  id             String      @id @default(cuid())
+  conversationId String
+  senderId       String
+  senderRole     Role
+  content        String
+  messageType    MessageType @default(TEXT)
+  isRead         Boolean     @default(false)
+  readAt         DateTime?
+  createdAt      DateTime    @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("SentMessages", fields: [senderId], references: [id])
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+}
+
+model Payment {
+  id                    String        @id @default(cuid())
+  projectId             String
+  clientId              String
+  amount                Decimal       @db.Decimal(12, 2)
+  currency              String        @default("INR")
+  status                PaymentStatus @default(PENDING)
+  method                String?
+  reference             String?
+  providerTransactionId String?       @unique
+  notes                 String?
+  paidAt                DateTime?
+  recordedById          String?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  project    Project @relation(fields: [projectId], references: [id])
+  recordedBy User?   @relation("RecordedBy", fields: [recordedById], references: [id])
+
+  @@index([projectId])
+  @@index([clientId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model WebhookEvent {
+  id          String   @id @default(cuid())
+  eventId     String   @unique
+  provider    String
+  payload     String
+  processedAt DateTime @default(now())
+
+  @@index([eventId])
+}
+
+model Service {
+  id           String        @id @default(cuid())
+  title        String
+  slug         String        @unique
+  shortDesc    String
+  fullDesc     String?
+  icon         String?
+  category     String?
+  displayOrder Int           @default(0)
+  status       PublishStatus @default(DRAFT)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([status])
+  @@index([displayOrder])
+}
+
+model PortfolioProject {
+  id           String        @id @default(cuid())
+  title        String
+  slug         String        @unique
+  shortDesc    String
+  fullDesc     String?
+  category     String?
+  technologies String[]
+  imageUrl     String?
+  projectUrl   String?
+  displayOrder Int           @default(0)
+  status       PublishStatus @default(DRAFT)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([status])
+  @@index([displayOrder])
+}
+
+model Testimonial {
+  id           String        @id @default(cuid())
+  displayName  String
+  company      String?
+  role         String?
+  content      String
+  photoUrl     String?
+  displayOrder Int           @default(0)
+  status       PublishStatus @default(DRAFT)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([status])
+}
+
+model Leadership {
+  id           String        @id @default(cuid())
+  name         String
+  position     String
+  bio          String?
+  photoUrl     String?
+  displayOrder Int           @default(0)
+  status       PublishStatus @default(DRAFT)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([status])
+}
+
+model SiteSettings {
+  id              String   @id @default("singleton")
+  companyName     String   @default("Vitota Technologies")
+  contactEmail    String?
+  contactPhone    String?
+  address         String?
+  socialLinks     Json?
+  aboutContent    String?
+  missionContent  String?
+  visionContent   String?
+  maintenanceMode Boolean  @default(false)
+  updatedAt       DateTime @updatedAt
+}
+
+model PublicStatistic {
+  id           String        @id @default(cuid())
+  label        String
+  value        String
+  displayOrder Int           @default(0)
+  status       PublishStatus @default(DRAFT)
+  createdAt    DateTime      @default(now())
+
+  @@index([status])
+}
+
+model Notification {
+  id                String           @id @default(cuid())
+  recipientId       String
+  type              NotificationType
+  title             String
+  message           String
+  relatedEntityType String?
+  relatedEntityId   String?
+  isRead            Boolean          @default(false)
+  readAt            DateTime?
+  createdAt         DateTime         @default(now())
+
+  recipient User @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId, isRead])
+  @@index([createdAt])
+}
+
+model TermsVersion {
+  id            String    @id @default(cuid())
+  version       String    @unique
+  effectiveDate DateTime
+  content       String
+  hash          String?
+  isCurrent     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+
+  acceptances TermsAcceptance[]
+
+  @@index([isCurrent])
+}
+
+model TermsAcceptance {
+  id             String   @id @default(cuid())
+  userId         String
+  termsVersionId String
+  accepted       Boolean  @default(true)
+  acceptedAt     DateTime @default(now())
+  source         String
+  ipAddress      String?
+  userAgent      String?
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  termsVersion TermsVersion @relation(fields: [termsVersionId], references: [id])
+
+  @@index([userId])
+  @@index([termsVersionId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  entityType String?
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model CallSession {
+  id             String       @id @default(cuid())
+  clientId       String
+  conversationId String?
+  roomName       String       @unique
+  type           CallType
+  status         CallStatus   @default(RINGING)
+  startedAt      DateTime     @default(now())
+  answeredAt     DateTime?
+  endedAt        DateTime?
+  duration       Int?
+
+  client         Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([clientId])
+  @@index([conversationId])
+  @@index([status])
+}

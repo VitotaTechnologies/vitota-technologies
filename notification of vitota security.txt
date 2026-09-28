@@ -1,0 +1,186 @@
+1. Register / Welcome Email
+
+Hello {{name}},
+
+Welcome to Vitota Technologies!
+
+Your account has been successfully created.
+
+Account Email: {{email}}
+Registration Date: {{datetime}}
+
+You can now log in and access your Vitota Technologies account.
+
+Thank you for joining us.
+
+Regards,
+Vitota Technologies
+Technology • Innovation • Digital Solutions
+
+-------------------------------------------------------------------------------------------------
+
+2. Password Changed Email
+
+Hello {{name}},
+
+Your Vitota Technologies account password has been successfully changed.
+
+Account: {{email}}
+Date & Time: {{datetime}}
+
+⚠️ SECURITY WARNING
+
+If you made this change, no action is required.
+
+If you did NOT change your password, your account may be at risk. Please reset your password immediately and contact Vitota Technologies support.
+
+For your security, never share your password or verification code with anyone.
+
+Regards,
+Vitota Technologies
+Technology • Innovation • Digital Solutions
+
+---------------------------------------------------------------------------------------------------
+
+3. Forgot Password Email
+
+Hello {{name}},
+
+A request was received to reset the password for your Vitota Technologies account.
+
+Account: {{email}}
+Request Time: {{datetime}}
+
+⚠️ SECURITY WARNING
+
+If you requested this password reset, click the button below to securely create a new password.
+
+[ RESET PASSWORD ]
+
+If you did NOT request this password reset, do not click the reset link.
+
+Someone may be attempting to access your account. Please contact Vitota Technologies support if you believe your account security has been compromised.
+
+🔒 Never share your password, reset link, or verification code with anyone.
+
+Regards,
+Vitota Technologies
+Technology • Innovation • Digital Solutions
+
+---------------------------------------------------------------------------------------------------
+
+4. Account Deactivated by Admin
+
+Hello {{name}},
+
+Your Vitota Technologies account has been deactivated by an administrator.
+
+Account: {{email}}
+Date & Time: {{datetime}}
+
+Account Status: DEACTIVATED
+
+Reason:
+{{reason}}
+
+You are currently unable to access your account.
+
+If you believe this action was taken by mistake, you can submit an account recovery request.
+
+Regards,
+Vitota Technologies
+Technology • Innovation • Digital Solutions
+
+--------------------------------------------------------------------------------------------------
+
+5. Account Recovery Request Received
+
+Hello {{name}},
+
+We have received your request to recover your Vitota Technologies account.
+
+Account: {{email}}
+Request ID: {{request_id}}
+Request Date: {{datetime}}
+
+Your recovery request is currently under review.
+
+Our team will verify the necessary account information and notify you once a decision has been made.
+
+Please do not submit multiple recovery requests while your request is being reviewed.
+
+Regards,
+Vitota Technologies
+Technology • Innovation • Digital Solutions
+
+---------------------------------------------------------------------------------------------------
+
+6. Account Recovered / Unblocked
+
+Hello {{name}},
+
+Good news!
+
+Your Vitota Technologies account has been successfully recovered and reactivated.
+
+Account: {{email}}
+Account Status: ACTIVE
+Recovery Date: {{datetime}}
+
+You can now log in to your account normally.
+
+⚠️ SECURITY NOTICE
+
+If you did not request this account recovery, please contact Vitota Technologies support immediately.
+
+Regards,
+Vitota Technologies
+Technology • Innovation • Digital Solutions
+
+----------------------------------------------------------------------------------------------------
+
+7. Recovery Request Rejected
+
+Hello {{name}},
+
+We have reviewed your Vitota Technologies account recovery request.
+
+Unfortunately, we were unable to approve your recovery request at this time.
+
+Account: {{email}}
+Request ID: {{request_id}}
+
+Reason:
+{{reason}}
+
+If you believe this decision was incorrect, you may submit another recovery request with the required information.
+
+Regards,
+Vitota Technologies
+Technology • Innovation • Digital Solutions
+
+-------------------------------------------------------------------------------------------------------
+
+8. Account Unblocked by Admin
+
+Hello {{name}},
+
+Your Vitota Technologies account has been unblocked and activated by an administrator.
+
+Account: {{email}}
+Account Status: ACTIVE
+Activated On: {{datetime}}
+
+You may now log in and use your account normally.
+
+⚠️ SECURITY NOTICE
+
+If you did not request this action, please contact Vitota Technologies support immediately.
+
+For your security, never share your password or verification codes with anyone.
+
+Regards,
+Vitota Technologies
+Technology • Innovation • Digital Solutions
+
+---------------------------------------------------------------------------------------------------------

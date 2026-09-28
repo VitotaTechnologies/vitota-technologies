@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 222 47% 6%;
+  --bg-secondary: 222 45% 9%;
+  --surface: 222 40% 11%;
+  --surface-hover: 222 40% 14%;
+  --border: 217 33% 20%;
+  --primary: 210 100% 55%;
+  --primary-hover: 210 100% 62%;
+  --primary-fg: 0 0% 100%;
+  --accent: 190 95% 55%;
+  --text-primary: 210 40% 98%;
+  --text-secondary: 215 20% 72%;
+  --text-muted: 215 15% 55%;
+  --success: 145 60% 45%;
+  --warning: 40 90% 55%;
+  --danger: 0 75% 58%;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  * { border-color: hsl(var(--border)); }
+  html { scroll-behavior: smooth; }
+  body {
+    background: hsl(var(--bg));
+    color: hsl(var(--text-primary));
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4, h5, h6 { color: hsl(var(--text-primary)); font-weight: 700; letter-spacing: -0.02em; }
+  ::selection { background: hsl(var(--primary) / 0.3); }
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .glass {
+    background: hsl(var(--surface) / 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.6);
+  }
+  .glass-strong {
+    background: hsl(var(--surface) / 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsl(var(--border));
+  }
+  .glow-text {
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .space-bg {
+    background:
+      radial-gradient(ellipse at top, hsl(var(--primary) / 0.15), transparent 60%),
+      radial-gradient(ellipse at bottom, hsl(var(--accent) / 0.1), transparent 60%),
+      hsl(var(--bg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+@keyframes projectConfetti {
+  0% {
+    transform: translate3d(0, -40px, 0) rotate(0deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate3d(0, 110vh, 0) rotate(720deg);
+    opacity: 0.9;
+  }
+}
