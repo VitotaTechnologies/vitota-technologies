@@ -6,7 +6,9 @@ import { AppProviders } from '@/components/providers/AppProviders';
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
+  metadataBase: new URL(
+  process.env.NEXT_PUBLIC_APP_URL?.trim() || 'http://localhost:3000'
+),
   title: { default: 'Vitota Technologies', template: '%s | Vitota Technologies' },
   description: 'Premium technology solutions — web development, applications, and digital systems by Vitota Technologies.',
   openGraph: {
