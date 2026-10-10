@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { readJsonResponse } from '@/lib/api-client';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -100,7 +101,16 @@ export default function RegisterPage() {
         }
       );
 
-      const json = await res.json();
+      const json = await readJsonResponse<{
+        success?: boolean;
+        data?: {
+          email?: string;
+          phone?: string | null;
+        };
+        error?: {
+          message?: string;
+        };
+      }>(res);
 
       if (!res.ok || !json.success) {
         throw new Error(

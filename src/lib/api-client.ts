@@ -2,7 +2,9 @@ export async function readJsonResponse<T>(response: Response): Promise<T> {
   const text = await response.text();
 
   if (!text) {
-    return {} as T;
+    throw new Error(
+      'The server returned an empty response. Please try again.'
+    );
   }
 
   try {
@@ -10,17 +12,17 @@ export async function readJsonResponse<T>(response: Response): Promise<T> {
   } catch {
     const normalizedText = text.replace(/\s+/g, ' ').trim();
     const isHtmlResponse =
-      normalizedText.startsWith('<!DOCTYPE html') ||
-      normalizedText.startsWith('<html');
+      /^<!doctype html\b/i.test(normalizedText) ||
+      /^<html\b/i.test(normalizedText);
 
     if (isHtmlResponse) {
       throw new Error(
-        'The server returned an unexpected response. Please try again.'
+        'The server returned a web page instead of an API response. Please try again later.'
       );
     }
 
     throw new Error(
-      normalizedText.slice(0, 180) || 'Request failed.'
+      'The server returned an invalid response. Please try again.'
     );
   }
 }
