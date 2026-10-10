@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { readJsonResponse } from '@/lib/api-client';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -167,7 +168,12 @@ export default function LoginPage() {
         );
 
       const json =
-        await res.json();
+        await readJsonResponse<{
+          success?: boolean;
+          error?: {
+            message?: string;
+          };
+        }>(res);
 
       if (
         !res.ok ||
@@ -264,7 +270,22 @@ export default function LoginPage() {
         );
 
       const json =
-        await res.json();
+        await readJsonResponse<{
+          success?: boolean;
+          data?: {
+            accountDeactivated?: boolean;
+            user?: {
+              name?: string;
+              email?: string;
+              phone?: string | null;
+            };
+            role?: string;
+          };
+          error?: {
+            code?: string;
+            message?: string;
+          };
+        }>(res);
 
       /*
        * =================================================

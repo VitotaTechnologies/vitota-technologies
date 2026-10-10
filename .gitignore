@@ -1,6 +1,8 @@
 .env
 .env.local
 .env.*.local
+.env.production
+.env.vercel.production
 !.env.example
 
 node_modules/
@@ -16,3 +18,5 @@ test-results/
 # Local development uploads must not become repository content.
 public/uploads/*
 !public/uploads/.gitkeep
+
+.vercel

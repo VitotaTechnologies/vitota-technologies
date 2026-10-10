@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { readJsonResponse } from '@/lib/api-client';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -61,7 +62,15 @@ export default function AdminLoginPage() {
       );
 
       const json =
-        await res.json();
+        await readJsonResponse<{
+          success?: boolean;
+          data?: {
+            role?: string;
+          };
+          error?: {
+            message?: string;
+          };
+        }>(res);
 
       if (
         !res.ok ||
