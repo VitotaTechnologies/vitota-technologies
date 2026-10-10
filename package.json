@@ -17,6 +17,9 @@
     "admin:create": "tsx --env-file=.env scripts/create-admin.ts",
     "prisma:studio": "prisma studio"
   },
+  "engines": {
+    "node": "22.x"
+  },
   "dependencies": {
     "@livekit/components-react": "^2.9.24",
     "@livekit/components-styles": "^1.2.0",

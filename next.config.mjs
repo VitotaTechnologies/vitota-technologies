@@ -7,6 +7,14 @@ const nextConfig = {
       { protocol: 'https', hostname: '**' },
     ],
   },
+  experimental: {
+    outputFileTracingIncludes: {
+      '/api/auth/login': ['./node_modules/argon2/prebuilds/linux-x64/argon2.glibc.node'],
+      '/api/auth/register': ['./node_modules/argon2/prebuilds/linux-x64/argon2.glibc.node'],
+      '/api/auth/reset-password': ['./node_modules/argon2/prebuilds/linux-x64/argon2.glibc.node'],
+      '/api/client/settings/password': ['./node_modules/argon2/prebuilds/linux-x64/argon2.glibc.node'],
+    },
+  },
   async headers() {
     return [
       {
